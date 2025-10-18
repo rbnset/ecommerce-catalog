@@ -63,6 +63,7 @@ export function useProduct(initialId = 1) {
     await load();
   }
 
+
   // (Opsional) tombol Prev
   async function prev() {
     if (isLoading.value) return;
