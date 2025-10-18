@@ -38,6 +38,31 @@ import TProductTemplate from '@/components/templates/TProductTemplate.vue';
 import OProductCard from '@/components/organisms/OProductCard.vue';
 import MSkeletonCard from '@/components/molecules/MSkeletonCard.vue';
 import { extractIdFromSlug, slugWithId } from '@/utils/slug';
+import { useHead } from '@vueuse/head';
+
+
+const pageTitle = computed(() =>
+  productData.value?.title ? `${productData.value.title} | Product` : 'Product',
+);
+const pageDesc = computed(() => (productData.value?.description ?? '').slice(0, 155));
+const pageUrl = computed(() => window.location.href);
+const pageImage = computed(() => productData.value?.image || '');
+
+useHead({
+  title: pageTitle,
+  meta: [
+    { name: 'description', content: pageDesc },
+    { property: 'og:title', content: pageTitle },
+    { property: 'og:description', content: pageDesc },
+    { property: 'og:url', content: pageUrl },
+    pageImage.value ? { property: 'og:image', content: pageImage } : undefined,
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: pageTitle },
+    { name: 'twitter:description', content: pageDesc },
+    pageImage.value ? { name: 'twitter:image', content: pageImage } : undefined,
+  ].filter(Boolean) as any,
+  link: [{ rel: 'canonical', href: pageUrl }],
+});
 
 const route = useRoute();
 const router = useRouter();
