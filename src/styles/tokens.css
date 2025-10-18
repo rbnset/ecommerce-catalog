@@ -1,0 +1,51 @@
+:root {
+  /* Colors (sesuai Figma) */
+  --color-primary: #720060;
+  --color-primary-contrast: #ffffff;
+  --color-secondary: #002772;
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-border: #dcdcdc;
+  --color-text: #1e1e1e;
+  --color-muted: #3f3f3f;
+
+  /* Context backgrounds */
+  --bg-men: #d6e6ff;
+  --bg-women: #fde2ff;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Shadows */
+  --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.1);
+
+  /* Breakpoints */
+  --bp-mobile: 640px;
+  --bp-tablet: 1024px;
+
+  /* Containers */
+  --container-desktop: 1120px;
+  --container-tablet: 880px;
+  --container-mobile: 100%;
+
+  /* Typography */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, 'Helvetica Neue', Arial;
+}
