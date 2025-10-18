@@ -20,14 +20,16 @@
           </div>
         </div>
 
-        <!-- Mid -->
+        <!-- Mid (auto expands but won’t overlap bottom) -->
         <div class="mid-card">
           <p class="desc">{{ description }}</p>
         </div>
 
-        <!-- Bottom -->
+        <!-- Bottom (stays at bottom thanks to grid row layout) -->
         <div class="bottom-card">
-          <span class="price" :class="tone === 'navy' ? 'text-navy' : 'text-purple'">$ {{ price.toFixed(2) }}</span>
+          <span class="price" :class="tone === 'navy' ? 'text-navy' : 'text-purple'">
+            $ {{ price.toFixed(2) }}
+          </span>
           <div class="buttons">
             <button class="btn-buy" :class="tone === 'navy' ? 'btn-navy' : 'btn-purple'">Buy now</button>
             <button class="btn-next" :class="tone === 'navy' ? 'btn-navy-bdr' : 'btn-purple-bdr'"
@@ -56,12 +58,15 @@ defineProps<{
 </script>
 
 <style scoped>
-/* Card overall */
+/* ============ Card layout (desktop first) ============ */
 .card {
   position: relative;
   z-index: 2;
-  width: 80vw;
-  height: 70vh;
+
+  /* ukuran seperti referensi, tapi fleksibel */
+  width: min(1100px, 80vw);
+  min-height: 70vh;
+  /* jaga tinggi minimum */
   background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -72,7 +77,7 @@ defineProps<{
   gap: 5%;
 }
 
-/* Image column */
+/* kiri: gambar */
 .product-image {
   display: flex;
   align-items: center;
@@ -81,30 +86,38 @@ defineProps<{
 
 .product-image img {
   width: 80%;
-  max-height: 283px;
+  max-height: 320px;
   object-fit: contain;
 }
 
-/* Content column */
+/* kanan: detail pakai grid 3 baris (auto | 1fr | auto) */
 .detail-product {
-  position: relative;
-  width: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  /* <-- inti solusi anti tumpang tindih */
+  gap: 16px;
+  min-height: 0;
+  /* penting agar overflow terkelola */
 }
 
+/* top: judul + kategori + rating */
 .top-card {
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  padding-bottom: 12px;
 }
 
 .title {
   font-size: 28px;
   font-weight: 600;
+  line-height: 1.25;
 }
 
 .category {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 1rem auto;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .category p {
@@ -113,31 +126,37 @@ defineProps<{
   font-weight: 400;
 }
 
-/* Description */
+/* mid: deskripsi (biar fleksibel dan tidak nabrak bottom) */
 .mid-card {
-  margin-top: 1rem;
+  overflow: auto;
+  /* scroll kecil kalau teks panjang */
+  min-height: 0;
+  /* biar 1fr bisa mengecil */
 }
 
 .desc {
   color: #1e1e1e;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 400;
   text-align: justify;
-  overflow: hidden;
+
+  /* clamp aman tapi tidak memaksa overlap */
   display: -webkit-box;
-  -webkit-line-clamp: 5;
-  line-clamp: 5;
+  -webkit-line-clamp: 7;
+  line-clamp: 7;
   -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* Bottom row fixed to bottom area */
+/* bottom: garis atas + harga + tombol, POSISI NORMAL (bukan absolute/fixed) */
 .bottom-card {
-  width: 100%;
-  position: absolute;
-  bottom: 0;
-  margin-bottom: 2rem;
-  padding: 1rem 0;
   border-top: 1px solid rgba(0, 0, 0, 0.2);
+  padding-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  /* harga kiri, tombol kanan */
+  gap: 16px;
+  align-items: center;
 }
 
 .price {
@@ -146,37 +165,64 @@ defineProps<{
 }
 
 .buttons {
-  margin-top: 1rem;
   display: flex;
   gap: 1.1rem;
 }
 
 .buttons .btn-buy,
 .buttons .btn-next {
-  width: 100%;
   height: 2.6rem;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   border-radius: 4px;
+  padding: 0 18px;
 }
 
-/* Responsive */
-@media only screen and (max-width: 600px) {
+/* ============ Tablet ============ */
+@media (max-width: 1024px) {
   .card {
-    height: 90vh;
-    padding: 1rem;
     grid-template-columns: 1fr;
-    gap: 1rem;
+    /* jadi satu kolom */
+    gap: 20px;
+    padding: 32px 24px;
+  }
+
+  .product-image img {
+    max-height: 300px;
+  }
+
+  .desc {
+    -webkit-line-clamp: 9;
+    line-clamp: 9;
+  }
+
+  .bottom-card {
+    grid-template-columns: 1fr;
+  }
+
+  .buttons {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+/* ============ Mobile ============ */
+@media (max-width: 600px) {
+  .card {
+    min-height: auto;
+    /* biar tingginya mengikuti konten */
+    width: 92vw;
+    padding: 16px 14px;
   }
 
   .product-image {
-    margin: 1rem 0;
+    margin: 8px 0;
   }
 
   .product-image img {
     width: 70%;
-    max-height: 260px;
+    max-height: 240px;
   }
 
   .title {
@@ -189,18 +235,14 @@ defineProps<{
 
   .desc {
     font-size: 16px;
-    -webkit-line-clamp: 8;
-    line-clamp: 8;
+    -webkit-line-clamp: 10;
+    line-clamp: 10;
   }
 
+  /* bottom tetap dalam flow — TIDAK fixed */
   .bottom-card {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: 0 auto;
-    background: #fff;
-    padding: 1rem;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .buttons {
@@ -209,9 +251,8 @@ defineProps<{
 
   .buttons .btn-buy,
   .buttons .btn-next {
-    width: 72%;
-    height: 2.3rem;
-    margin: 0 auto;
+    width: 100%;
+    height: 2.4rem;
   }
 }
 </style>
