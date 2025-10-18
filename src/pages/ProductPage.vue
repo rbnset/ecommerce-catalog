@@ -37,23 +37,60 @@ import { useProduct } from '@/composables/useProduct';
 import TProductTemplate from '@/components/templates/TProductTemplate.vue';
 import OProductCard from '@/components/organisms/OProductCard.vue';
 import MSkeletonCard from '@/components/molecules/MSkeletonCard.vue';
+import { extractIdFromSlug, slugWithId } from '@/utils/slug';
 
 const route = useRoute();
 const router = useRouter();
-const initialId = Number(route.params.id ?? 1);
+
+// Tentukan initialId dari slug atau id numerik
+function resolveInitialId(): number {
+  if (typeof route.params.slug === 'string') {
+    const sid = extractIdFromSlug(route.params.slug);
+    if (Number.isFinite(sid) && sid > 0) return sid;
+  }
+  if (typeof route.params.id === 'string') {
+    const nid = Number(route.params.id);
+    if (Number.isFinite(nid) && nid > 0) return nid;
+  }
+  return 1;
+}
+
+const initialId = resolveInitialId();
 
 const { productId, productData, isLoading, isMen, isWomen, isAvailable, load, init, next } =
-  useProduct(Number.isFinite(initialId) && initialId > 0 ? initialId : 1);
+  useProduct(initialId);
 
 const tone = computed(() => (isMen.value ? 'navy' : isWomen.value ? 'purple' : 'neutral'));
 
-onMounted(async () => { await init(); await load(); });
+// Setelah data ada, jika URL numerik, ganti ke slug canonical (replace agar efeknya seperti 301 di SPA)
+async function ensureCanonicalUrl() {
+  if (!productData.value) return;
+  const slug = slugWithId(productData.value.title ?? '', productData.value.id);
+  // Jika saat ini route bukan slug (punya param 'id' / path numeric), replace ke slug
+  if (route.name === 'product.id') {
+    await router.replace({ name: 'product.slug', params: { slug } });
+  }
+  // Set judul halaman (sedikit membantu SEO meskipun SPA)
+  document.title = `${productData.value.title} | Product`;
+}
+
+onMounted(async () => {
+  await init();
+  await load();
+  await ensureCanonicalUrl();
+});
 
 async function nextWithUrl() {
   await next();
-  router.replace({ name: 'product', params: { id: productId.value } });
+  // Saat next, navigasi menggunakan slug
+  if (productData.value) {
+    const slug = slugWithId(productData.value.title ?? '', productData.value.id);
+    await router.replace({ name: 'product.slug', params: { slug } });
+    document.title = `${productData.value.title} | Product`;
+  }
 }
 </script>
+
 
 <style scoped>
 /* Unavailable layout mimicking original */
