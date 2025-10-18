@@ -1,69 +1,64 @@
 <template>
   <div class="container-wrap" :class="bgClass">
-    <div class="inner container">
+    <!-- Pattern muncul hanya saat available -->
+    <Transition name="fade">
+      <div v-if="available" class="pattern">
+        <!-- Inline SVG pattern supaya tidak perlu asset eksternal -->
+        <svg viewBox="0 0 100 10" preserveAspectRatio="none">
+          <defs>
+            <pattern id="dots" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="1" fill="rgba(0,0,0,0.06)" />
+            </pattern>
+          </defs>
+          <rect x="0" y="0" width="100%" height="100%" fill="url(#dots)" />
+        </svg>
+      </div>
+    </Transition>
+
+    <div class="inner">
       <slot />
     </div>
-    <Transition name="fade">
-      <div v-if="available" class="pattern"></div>
-    </Transition>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed } from 'vue';
 const props = defineProps<{ available: boolean; tone: 'navy' | 'purple' | 'neutral' }>();
 const bgClass = computed(() => (!props.available ? 'bg-grey' : props.tone === 'navy' ? 'bg-blue' : 'bg-pink'));
 </script>
+
 <style scoped>
+/* Full-screen like original design */
 .container-wrap {
   position: relative;
   min-height: 100vh;
-  padding: var(--space-6);
-  transition: background-color .25s ease
+  width: 100%;
+  display: grid;
+  place-items: center;
 }
 
+/* Card wrapper region roughly 80% width & 70vh height handled by the organism */
 .inner {
-  max-width: 960px;
-  margin: auto
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Pattern sits behind card */
 .pattern {
   position: absolute;
-  inset: 0;
+  z-index: 1;
+  top: -12%;
+  left: 0;
+  width: 100%;
   pointer-events: none;
-  background-image: radial-gradient(rgba(0, 0, 0, .06) 1px, transparent 1px);
-  background-size: 22px 22px;
-  animation: fade-in .3s ease
 }
 
-.bg-grey {
-  background: var(--color-bg)
-}
-
-.bg-blue {
-  background: var(--bg-men)
-}
-
-.bg-pink {
-  background: var(--bg-women)
-}
-
-@media (max-width:var(--bp-tablet)) {
-  .container-wrap {
-    padding: var(--space-5)
-  }
-
-  .inner {
-    max-width: 860px
-  }
-}
-
-@media (max-width:var(--bp-mobile)) {
-  .container-wrap {
-    padding: var(--space-4)
-  }
-
-  .inner {
-    max-width: 100%
-  }
+.pattern svg {
+  width: 100%;
+  height: 200px;
 }
 </style>
