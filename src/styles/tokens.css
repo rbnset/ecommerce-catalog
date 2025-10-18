@@ -48,4 +48,63 @@
   /* Typography */
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, 'Helvetica Neue', Arial;
+
+  /* Gradient backgrounds to mimic original design */
+  .bg-blue {
+    background: linear-gradient(180deg, #d6e6ff 65%, #ffffff 50%);
+  }
+  .bg-pink {
+    background: linear-gradient(180deg, #fde2ff 65%, #ffffff 50%);
+  }
+  .bg-grey {
+    background: linear-gradient(180deg, #d8d7d7 65%, #ffffff 50%);
+  }
+
+  /* Text colors like original */
+  .text-navy {
+    color: #002772;
+  }
+  .text-purple {
+    color: #720060;
+  }
+
+  /* Circle colors for rating */
+  .bgrd-navy {
+    background-color: #002772;
+    border: 1px solid #002772;
+  }
+  .bgrd-purple {
+    background-color: #720060;
+    border: 1px solid #720060;
+  }
+  .bgrd-white-navy {
+    background-color: #ffffff;
+    border: 1px solid #002772;
+  }
+  .bgrd-white-purple {
+    background-color: #ffffff;
+    border: 1px solid #720060;
+  }
+
+  /* Buttons look */
+  .btn-navy {
+    background-color: #002772;
+    border: 3px solid #002772;
+    color: #fff;
+  }
+  .btn-purple {
+    background-color: #720060;
+    border: 3px solid #720060;
+    color: #fff;
+  }
+  .btn-navy-bdr {
+    border: 3px solid #002772;
+    color: #002772;
+    background: #fff;
+  }
+  .btn-purple-bdr {
+    border: 3px solid #720060;
+    color: #720060;
+    background: #fff;
+  }
 }
