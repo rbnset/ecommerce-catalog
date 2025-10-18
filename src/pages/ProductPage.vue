@@ -1,29 +1,22 @@
 <template>
   <TProductTemplate :available="isAvailable" :tone="tone">
-    <!-- Skeleton saat loading / first render -->
-    <template v-if="isLoading || !productData">
-      <MSkeletonCard />
-    </template>
-
-    <!-- Konten -->
     <Transition name="fade" mode="out-in">
-      <div v-if="!isAvailable && productData" key="empty" class="empty">
+      <!-- TAMPIL SKELETON -->
+      <MSkeletonCard v-if="!productData" key="skeleton" />
+
+      <!-- TAMPIL STATE UNAVAILABLE -->
+      <div v-else-if="!isAvailable" key="empty" class="empty">
         <p>This product is unavailable to show</p>
-        <AButton variant="solid" color="neutral" :disabled="isLoading" @click="nextWithUrl">Next product</AButton>
+        <AButton variant="solid" color="neutral" :disabled="isLoading" @click="nextWithUrl">
+          Next product
+        </AButton>
       </div>
-      <OProductCard
-        v-else-if="productData"
-        key="card"
-        :image="productData?.image"
-        :title="productData?.title ?? ''"
-        :category="productData?.category ?? ''"
-        :description="productData?.description ?? ''"
-        :price="productData?.price ?? 0"
-        :rate="productData?.rating?.rate ?? null"
-        :tone="tone"
-        :disabled="isLoading"
-        @next="nextWithUrl"
-      />
+
+      <!-- TAMPIL KONTEN PRODUK -->
+      <OProductCard v-else key="card" :image="productData?.image" :title="productData?.title ?? ''"
+        :category="productData?.category ?? ''" :description="productData?.description ?? ''"
+        :price="productData?.price ?? 0" :rate="productData?.rating?.rate ?? null" :tone="tone" :disabled="isLoading"
+        @next="nextWithUrl" />
     </Transition>
   </TProductTemplate>
 </template>
@@ -55,8 +48,13 @@ async function nextWithUrl() {
 </script>
 
 <style scoped>
-.empty{
-  display:grid;place-items:center;gap:12px;background:var(--color-surface);border-radius:var(--radius-xl);
-  box-shadow:var(--shadow-md);padding:var(--space-8);
+.empty {
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-8);
 }
 </style>
