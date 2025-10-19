@@ -64,6 +64,7 @@ defineProps<{
 .card {
   position: relative;
   z-index: 2;
+  margin: 0;
 
   width: min(1100px, 80vw);
   min-height: 70vh;
