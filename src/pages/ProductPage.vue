@@ -31,10 +31,10 @@
 
 <script setup lang="ts">
 /**
- * Perbaikan utama:
- * - useHead dipanggil SETELAH state/computed siap supaya reaktif
- * - ensureCanonicalUrl() dipanggil tiap selesai load + ketika route numeric
- * - watch(route) agar navigasi manual/back/forward juga memuat ulang data
+ * Perbaikan:
+ * - Head SEO reaktif (vueuse/head)
+ * - Canonical slug redirect untuk route numerik
+ * - Watch route agar navigasi manual ikut muat data & canonicalize
  */
 import { computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -49,7 +49,7 @@ import { extractIdFromSlug, slugWithId } from '@/utils/slug';
 const route = useRoute();
 const router = useRouter();
 
-/** Resolve initial ID dari slug atau id numerik */
+/** Ambil initial ID dari slug atau id numerik */
 function resolveInitialId(r = route): number {
   if (typeof r.params.slug === 'string') {
     const sid = extractIdFromSlug(r.params.slug);
@@ -61,7 +61,6 @@ function resolveInitialId(r = route): number {
   }
   return 1;
 }
-
 const initialId = resolveInitialId();
 
 const {
@@ -74,25 +73,17 @@ const {
   load,
   init,
   next,
-  goTo, // (opsional) bisa dipakai di watcher route
+  goTo, // opsional (dipakai watcher)
 } = useProduct(initialId);
 
 const tone = computed(() => (isMen.value ? 'navy' : isWomen.value ? 'purple' : 'neutral'));
 
-/** -----------------------------
- *  SEO Head (reactive via vueuse)
- *  -----------------------------
- *  NOTE: dideklarasikan SETELAH productData/tone ada supaya computed valid
- */
+/* --------- SEO HEAD (reactive) --------- */
 const pageTitle = computed(() =>
   productData.value?.title ? `${productData.value.title} | Product` : 'Product',
 );
 const pageDesc = computed(() => (productData.value?.description ?? '').slice(0, 155));
-const pageUrl = computed(() => {
-  // gunakan origin + fullPath supaya reaktif saat route berubah
-  const origin = window.location.origin;
-  return origin + route.fullPath;
-});
+const pageUrl = computed(() => window.location.origin + route.fullPath);
 const pageImage = computed(() => productData.value?.image || '');
 
 useHead({
@@ -111,7 +102,7 @@ useHead({
   link: [{ rel: 'canonical', href: pageUrl }],
 });
 
-/** Pastikan URL canonical slug ketika user membuka /product/:id numerik */
+/** Jika user masuk via /product/:id numerik → replace ke slug canonical */
 async function ensureCanonicalUrl() {
   if (!productData.value) return;
   if (route.name === 'product.id') {
@@ -121,31 +112,26 @@ async function ensureCanonicalUrl() {
 }
 
 onMounted(async () => {
-  await init();      // ambil maximumProduct dan normalisasi id
-  await load();      // muat produk initial
+  await init();
+  await load();
   await ensureCanonicalUrl();
 });
 
-/** Next → selalu navigasi dengan slug (canonical), head akan ikut update reaktif */
+/** Next → navigasi pakai slug canonical */
 async function nextWithUrl() {
-  await next(); // composable sudah set productData=null → skeleton tampil dulu
+  await next(); // productData di-clear di composable → skeleton tampil dulu
   if (productData.value) {
     const slug = slugWithId(productData.value.title ?? '', productData.value.id);
     await router.replace({ name: 'product.slug', params: { slug } });
   }
 }
 
-/**
- * Watch route: jika user navigasi manual (klik back/forward atau ketik URL),
- * sinkronkan state dengan slug/id baru.
- */
+/** Sinkron saat user back/forward/ketik URL */
 watch(
   () => route.fullPath,
   async () => {
-    // Ekstrak target id dari route saat ini
     const targetId = resolveInitialId(route);
     if (targetId !== productId.value && Number.isFinite(targetId) && targetId > 0) {
-      // pakai goTo agar skeleton tampil & aman dari race
       await goTo?.(targetId);
       await ensureCanonicalUrl();
     }
@@ -154,7 +140,7 @@ watch(
 </script>
 
 <style scoped>
-/* Unavailable layout mirroring original, plus responsive fixes dari patch sebelumnya */
+/* Unavailable layout (aman & responsif) */
 .product-unavailable-container {
   width: 80vw;
   min-height: 70vh;
@@ -208,7 +194,7 @@ watch(
   cursor: pointer;
 }
 
-/* Mobile tweaks */
+/* Mobile */
 @media only screen and (max-width: 600px) {
   .product-unavailable-container {
     width: 92vw;

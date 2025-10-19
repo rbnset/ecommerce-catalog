@@ -22,7 +22,7 @@
 
         <!-- Mid (auto expands but won’t overlap bottom) -->
         <div class="mid-card">
-          <p class="desc">{{ description }}</p>
+          <MClampText :text="description" :lines="7" :lines-tablet="9" :lines-mobile="10" />
         </div>
 
         <!-- Bottom (stays at bottom thanks to grid row layout) -->
@@ -45,6 +45,8 @@
 
 <script setup lang="ts">
 import MRatingCircles from '@/components/molecules/MRatingCircles.vue';
+import MClampText from '@/components/molecules/MClampText.vue';
+
 defineProps<{
   image?: string;
   title: string;
@@ -63,10 +65,8 @@ defineProps<{
   position: relative;
   z-index: 2;
 
-  /* ukuran seperti referensi, tapi fleksibel */
   width: min(1100px, 80vw);
   min-height: 70vh;
-  /* jaga tinggi minimum */
   background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -94,10 +94,8 @@ defineProps<{
 .detail-product {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  /* <-- inti solusi anti tumpang tindih */
   gap: 16px;
   min-height: 0;
-  /* penting agar overflow terkelola */
 }
 
 /* top: judul + kategori + rating */
@@ -126,29 +124,13 @@ defineProps<{
   font-weight: 400;
 }
 
-/* mid: deskripsi (biar fleksibel dan tidak nabrak bottom) */
+/* mid: deskripsi (fleksibel, tidak nabrak bottom) */
 .mid-card {
   overflow: auto;
-  /* scroll kecil kalau teks panjang */
   min-height: 0;
-  /* biar 1fr bisa mengecil */
 }
 
-.desc {
-  color: #1e1e1e;
-  font-size: 18px;
-  font-weight: 400;
-  text-align: justify;
-
-  /* clamp aman tapi tidak memaksa overlap */
-  display: -webkit-box;
-  -webkit-line-clamp: 7;
-  line-clamp: 7;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* bottom: garis atas + harga + tombol, POSISI NORMAL (bukan absolute/fixed) */
+/* bottom: garis atas + harga + tombol (POSISI NORMAL, bukan absolute/fixed) */
 .bottom-card {
   border-top: 1px solid rgba(0, 0, 0, 0.2);
   padding-top: 16px;
@@ -179,22 +161,49 @@ defineProps<{
   padding: 0 18px;
 }
 
+/* Utility warna (sesuai tokens/globalmu) */
+.text-navy {
+  color: #002772;
+}
+
+.text-purple {
+  color: #720060;
+}
+
+.btn-navy {
+  background-color: #002772;
+  border: 3px solid #002772;
+  color: #fff;
+}
+
+.btn-purple {
+  background-color: #720060;
+  border: 3px solid #720060;
+  color: #fff;
+}
+
+.btn-navy-bdr {
+  border: 3px solid #002772;
+  color: #002772;
+  background: #fff;
+}
+
+.btn-purple-bdr {
+  border: 3px solid #720060;
+  color: #720060;
+  background: #fff;
+}
+
 /* ============ Tablet ============ */
 @media (max-width: 1024px) {
   .card {
     grid-template-columns: 1fr;
-    /* jadi satu kolom */
     gap: 20px;
     padding: 32px 24px;
   }
 
   .product-image img {
     max-height: 300px;
-  }
-
-  .desc {
-    -webkit-line-clamp: 9;
-    line-clamp: 9;
   }
 
   .bottom-card {
@@ -211,7 +220,6 @@ defineProps<{
 @media (max-width: 600px) {
   .card {
     min-height: auto;
-    /* biar tingginya mengikuti konten */
     width: 92vw;
     padding: 16px 14px;
   }
@@ -233,13 +241,6 @@ defineProps<{
     font-size: 16px;
   }
 
-  .desc {
-    font-size: 16px;
-    -webkit-line-clamp: 10;
-    line-clamp: 10;
-  }
-
-  /* bottom tetap dalam flow — TIDAK fixed */
   .bottom-card {
     grid-template-columns: 1fr;
     gap: 12px;
