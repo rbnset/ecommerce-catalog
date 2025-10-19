@@ -194,9 +194,11 @@ defineProps<{
   background: #fff;
 }
 
-/* ============ Tablet ============ */
+
+/* ============ Tablet (keep bottom same as desktop) ============ */
 @media (max-width: 1024px) {
   .card {
+    /* Tablet: 1 kolom (gambar di atas, detail di bawah) tetap OK */
     grid-template-columns: 1fr;
     gap: 20px;
     padding: 32px 24px;
@@ -206,15 +208,36 @@ defineProps<{
     max-height: 300px;
   }
 
+  /* ⬇️ BOTTOM SAMA DENGAN DESKTOP: 2 kolom (harga kiri, tombol kanan) */
   .bottom-card {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr auto;
+    /* <— ini kuncinya */
+    align-items: center;
+    gap: 16px;
   }
 
+  /* Tombol tetap sejajar kanan, tanpa wrap di tablet */
   .buttons {
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    /* <— cegah turun baris */
+  }
+
+  /* Sedikit kecilkan agar muat di tablet */
+  .buttons .btn-buy,
+  .buttons .btn-next {
+    height: 2.4rem;
+    font-size: 16px;
+    padding: 0 14px;
+  }
+
+  .price {
+    font-size: 24px;
   }
 }
+
 
 /* ============ Mobile ============ */
 @media (max-width: 600px) {
