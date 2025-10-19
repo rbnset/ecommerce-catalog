@@ -3,15 +3,9 @@
     <!-- Pattern muncul hanya saat available -->
     <Transition name="fade">
       <div v-if="available" class="pattern">
-        <!-- Inline SVG pattern supaya tidak perlu asset eksternal -->
-        <svg viewBox="0 0 100 10" preserveAspectRatio="none">
-          <defs>
-            <pattern id="dots" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-              <circle cx="1" cy="1" r="1" fill="rgba(0,0,0,0.06)" />
-            </pattern>
-          </defs>
-          <rect x="0" y="0" width="100%" height="100%" fill="url(#dots)" />
-        </svg>
+        <div v-if="available" class="pattern" aria-hidden="true">
+          <img :src="patternUrl" alt="pattern background" />
+        </div>
       </div>
     </Transition>
 
@@ -23,6 +17,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import patternUrl from '@/assets/bg-pattern.svg';
 const props = defineProps<{ available: boolean; tone: 'navy' | 'purple' | 'neutral' }>();
 const bgClass = computed(() => (!props.available ? 'bg-grey' : props.tone === 'navy' ? 'bg-blue' : 'bg-pink'));
 </script>
@@ -37,6 +32,22 @@ const bgClass = computed(() => (!props.available ? 'bg-grey' : props.tone === 'n
   /* Global page gap (top & bottom space), desktop default */
   --page-gap: 48px;
   padding-block: var(--page-gap);
+}
+
+/* Pettern background*/
+.pattern {
+  position: absolute;
+  z-index: 1;
+  top: -12%;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+}
+
+.pattern img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* Center the content area */

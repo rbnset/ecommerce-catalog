@@ -26,7 +26,12 @@
   box-shadow: var(--shadow-md);
   padding: 48px 32px;
   width: min(1100px, 80vw);
-  min-height: 70vh;
+}
+
+@media (max-width: 600px) {
+  .sk-card {
+    width: 92vw;
+  }
 }
 
 .sk-image {
