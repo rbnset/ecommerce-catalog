@@ -1,26 +1,12 @@
 <template>
-    <div class="clamp-wrap">
-        <!--
-      Animasi konten:
-      - Saat collapsed → paragraf ter-clamp
-      - Saat expanded → paragraf full
-      Kita pakai <Transition mode="out-in"> agar pergantian halus.
-    -->
-        <Transition name="fade-slide" mode="out-in">
-            <!-- COLLAPSED (clamped) -->
-            <p v-if="!expanded" key="clamped" ref="para" class="clamp-text is-clamped" :style="inlineClampStyle">
-                {{ text }}
-            </p>
+    <div class="clamp-wrap" :class="{ expanded }">
+        <p ref="para" class="clamp-text" :class="!expanded ? 'is-clamped' : ''"
+            :style="!expanded ? inlineClampStyle : undefined">
+            {{ text }}
+        </p>
 
-            <!-- EXPANDED (full) -->
-            <p v-else key="expanded" class="clamp-text">
-                {{ text }}
-            </p>
-        </Transition>
-
-        <!-- Toggle button -->
         <button v-if="showToggle" class="toggle-btn" type="button" :aria-expanded="expanded ? 'true' : 'false'"
-            @click="toggle()">
+            @click="toggle">
             {{ expanded ? 'Sembunyikan' : 'Baca selengkapnya' }}
         </button>
     </div>
@@ -41,43 +27,41 @@ const props = withDefaults(
 
 const para = ref<HTMLElement | null>(null);
 const expanded = ref(false);
-/**
- * showToggle = true hanya jika teks memang terpotong dalam keadaan COLLAPSED.
- * Saat expanded, kita tidak perlu re-evaluasi; toggle tetap tampil karena memang
- * sebelumnya terbukti terpotong.
- */
+/** tombol hanya tampil jika teks benar2 terpotong saat COLLAPSED */
 const showToggle = ref(false);
 
+/** pakai CSS var untuk jumlah baris saat collapsed */
 const inlineClampStyle = computed(() => ({ WebkitLineClamp: 'var(--clamp-lines)' } as any));
 
-function checkTruncation() {
-    // Hanya evaluasi ketika COLLAPSED (expanded=false)
-    if (expanded.value) return;
-    const el = para.value;
-    if (!el) return;
-    // Teks dianggap terpotong jika content lebih tinggi dari container yang ter-clamp
-    showToggle.value = el.scrollHeight > el.clientHeight + 1;
+function computeClampLines(): number {
+    const w = window.innerWidth;
+    return w <= 600 ? props.linesMobile : w <= 1024 ? props.linesTablet : props.lines;
 }
 
 function applyLines() {
     const el = para.value;
     if (!el) return;
-    const w = window.innerWidth;
-    const lines = w <= 600 ? props.linesMobile : w <= 1024 ? props.linesTablet : props.lines;
-    el.style.setProperty('--clamp-lines', String(lines));
+    el.style.setProperty('--clamp-lines', String(computeClampLines()));
+}
+
+function checkTruncation() {
+    // hanya cek saat collapsed
+    if (expanded.value) return;
+    const el = para.value;
+    if (!el) return;
+    // konten dianggap terpotong jika konten lebih tinggi dari container clamped
+    showToggle.value = el.scrollHeight > el.clientHeight + 1;
 }
 
 let ro: ResizeObserver | null = null;
 function onResize() {
-    // Saat collapsed, update clamp dan cek truncation
     if (!expanded.value) {
         applyLines();
         checkTruncation();
     }
 }
 
-function setup() {
-    // setup awal untuk COLLAPSED
+function setupObservers() {
     applyLines();
     nextTick(checkTruncation);
 
@@ -91,14 +75,16 @@ function setup() {
 
     window.addEventListener('resize', onResize, { passive: true });
 }
-function cleanup() {
-    ro?.disconnect(); ro = null;
+
+function cleanupObservers() {
+    ro?.disconnect();
+    ro = null;
     window.removeEventListener('resize', onResize);
 }
 
 function toggle() {
     expanded.value = !expanded.value;
-    // Jika kembali ke COLLAPSED, evaluasi ulang setelah render selesai
+    // saat kembali ke collapsed, pastikan clamp diterapkan lalu re-check truncation
     nextTick(() => {
         if (!expanded.value) {
             applyLines();
@@ -107,10 +93,10 @@ function toggle() {
     });
 }
 
-onMounted(setup);
-onBeforeUnmount(cleanup);
+onMounted(setupObservers);
+onBeforeUnmount(cleanupObservers);
 
-// Jika teks berubah (navigasi produk), reset ke COLLAPSED & evaluasi ulang
+/** reset saat teks berubah (navigasi produk) */
 watch(
     () => props.text,
     async () => {
@@ -138,9 +124,23 @@ watch(
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
+
+    /* animasi halus saat toggle */
+    transition: opacity 220ms ease, transform 220ms ease;
 }
 
-/* COLLAPSED: jumlah baris dikontrol oleh var --clamp-lines */
+.clamp-wrap:not(.expanded) .clamp-text {
+    /* ketika masih collapsed, slightly lowered (untuk efek slide-up saat expand) */
+    transform: translateY(6px);
+    opacity: 0.98;
+}
+
+.clamp-wrap.expanded .clamp-text {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* COLLAPSED: jumlah baris dikontrol var --clamp-lines */
 .is-clamped {
     -webkit-line-clamp: var(--clamp-lines);
 }
@@ -162,19 +162,6 @@ watch(
     opacity: .85;
 }
 
-/* Animasi transisi konten (fade + slide) */
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-    transition: opacity 220ms ease, transform 220ms ease;
-}
-
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-    opacity: 0;
-    transform: translateY(6px);
-}
-
-/* Mobile font sedikit lebih kecil */
 @media (max-width: 600px) {
     .clamp-text {
         font-size: 16px;
