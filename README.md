@@ -96,13 +96,6 @@ Based on the official VIX Front-End case study:contentReference[oaicite:1]{index
 | :-------------------------------------------------------- | :------------------------------------------------------ | :------------------------------------------------------ |
 | ![Desktop Screenshot](src/assets/screenshots/desktop.png) | ![Tablet Screenshot](src/assets/screenshots/tablet.png) | ![Mobile Screenshot](src/assets/screenshots/mobile.png) |
 
-💡 **Tips:**  
-Place screenshots in:  
-`src/assets/screenshots/`  
-Use `.png` or `.webp` for better compression.
-
----
-
 ## 🧱 Project Structure
 
 ```bash
