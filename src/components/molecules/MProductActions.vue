@@ -12,6 +12,6 @@ defineProps<{ tone: 'navy' | 'purple'; disabled?: boolean }>();
 <style scoped>
 .m-actions {
   display: flex;
-  gap: 10px
+  gap: 10px;
 }
 </style>

@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router';
 import ProductPage from '@/components/pages/ProductPage.vue';
-import { slugWithId } from '@/utils/slug';
 
 const routes = [
   // 1) Slug route harus terdaftar dulu (lebih spesifik untuk nama)
@@ -16,7 +15,9 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior() { return { top: 0 }; },
+  scrollBehavior() {
+    return { top: 0 };
+  },
 });
 
 /**

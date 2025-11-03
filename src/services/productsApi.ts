@@ -40,7 +40,7 @@ async function get<T>(url: string, retries = 2): Promise<T> {
   if (c) return c;
 
   let a = 0;
-  for (; ;) {
+  for (;;) {
     try {
       const r = await fx(url);
       if (!r.ok) throw new Error('HTTP ' + r.status);
