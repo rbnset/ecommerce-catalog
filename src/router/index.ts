@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router';
-import ProductPage from '@/pages/ProductPage.vue';
+import ProductPage from '@/components/pages/ProductPage.vue';
 import { slugWithId } from '@/utils/slug';
 
 const routes = [
